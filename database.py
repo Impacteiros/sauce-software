@@ -15,6 +15,7 @@ class Produto(Base):
     id = Column(Integer, primary_key=True)
     nome = Column(String)
     preco = Column(String)
+    descricao = Column(String)
     url_imagem = Column(String)
 
 # Criando a tabela no banco de dados
@@ -24,9 +25,9 @@ Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-def adicionar_produto(nome, preco, url_imagem):
+def adicionar_produto(nome, descricao, preco, url_imagem):
       engine.connect()
-      produto = Produto(nome=nome, preco=preco, url_imagem=url_imagem)
+      produto = Produto(nome=nome, descricao=descricao, preco=preco, url_imagem=url_imagem)
       session.add(produto)
       session.commit()
       session.close()

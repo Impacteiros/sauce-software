@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{url_for('static', filename="css/style.css")}}">
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,18 +10,22 @@
 <body>
     <ul>
         <li><a href="/gerenciar/">Gerenciar</a></li>
-        <li><a href="/consulta/">Consultar</a></li>
     </ul>
-
-    A database tem um total de {{tamanho}}
-
+    <div class="container">
     {% for lanche in lanches %}
-    <div style="border: 1px; margin: 30px;">
-    <br />
-    {{lanche.nome}}<br />
-    {{lanche.preco}}<br />
+    <div class="infos">
+        <div class="texto">
+        <ul>
+    <li class="nome_lanche">{{lanche.nome}}</li>
+    <li class="descricao">{{lanche.descricao[:110]}}</li>
+    <li class="preco">{{lanche.preco}}</li>
+        </ul>
+        </div>
+        <div class="imagem">
     <img src="{{lanche.url_imagem}}" />
+        </div>
     </div>
     {% endfor %}
+</div>
 </body>
 </html>

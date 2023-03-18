@@ -8,17 +8,17 @@ lanches = database.lista_lanches
 
 @app.route("/")
 def home():
-    tamanho = database.lista_lanches.count()
-    return render_template("index.html", tamanho=tamanho, lanches=lanches)
+    return render_template("index.html", lanches=lanches)
 
 @app.route("/gerenciar/", methods=["POST", "GET"])
 def gerenciar():
     nome = request.form.get("nome")
+    descricao = request.form.get("descricao")
     preco = request.form.get("preco")
     url = request.form.get("url")
     
     if nome and preco and url:
-        database.adicionar_produto(nome, preco, url)
+        database.adicionar_produto(nome, descricao, preco, url)
         return redirect("/")
     return render_template("gerenciar.html", lanches=lanches)
 

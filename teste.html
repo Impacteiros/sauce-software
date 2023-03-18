@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Formulário</title>
+    <style>
+      /* Estilo para o container principal */
+      .container-principal {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      
+      /* Estilo para o container do formulário */
+      .container-form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px #d9d9d9;
+        width: 500px;
+      }
+      
+      /* Estilo para o título do formulário */
+      .form-title {
+        background-color: #333;
+        color: #fff;
+        padding: 10px;
+        text-align: center;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+      
+      /* Estilo para os rótulos do formulário */
+      label {
+        display: inline-block;
+        width: 100px;
+        margin-bottom: 10px;
+        font-weight: bold;
+      }
+      
+      /* Estilo para os campos do formulário */
+      input[type=text], input[type=number] {
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        width: 100%;
+        font-family: Arial, sans-serif;
+      }
+      
+      /* Estilo para o botão de envio do formulário */
+      input[type=submit] {
+        background-color: #4CAF50;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      
+      /* Estilo para a imagem do produto */
+      .product-image {
+        width: 100%;
+        height: auto;
+      }
+      
+      /* Estilo para o degradê de fundo */
+      body {
+        background: linear-gradient(to bottom, #8B008B, #FF0000);
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-principal">
+      <div class="container-form">
+        <div class="form-title">
+          <h1>Formulário de Produto</h1>
+        </div>
+        <form>
+          <label for="name">Nome:</label>
+          <input type="text" id="name" name="name" placeholder="Nome do produto">
+          <br>
+          <label for="price">Preço:</label>
+          <input type="number" id="price" name="price" placeholder="Preço do produto">
+          <br>
+          <label for="image">Imagem URL:</label>
+          <input type="text" id="image" name="image" placeholder="URL da imagem do produto">
+          <br>
+          <input type="submit" value="Enviar">
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

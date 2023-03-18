@@ -1,0 +1,81 @@
+body {
+    background-color: whitesmoke;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
+.infos:hover {
+
+  box-shadow: 0 0 20px red;
+  animation: color-change 2s infinite;
+}
+
+@keyframes color-change {
+  0% {
+    box-shadow: 0 0 20px red;
+  }
+  50% {
+    box-shadow: 0 0 20px blue;
+  }
+  100% {
+    box-shadow: 0 0 20px red;
+  }
+}
+
+.container div {
+  margin: 10px;
+}
+
+.container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.container li {
+    margin: 3px;
+    margin-left: 0px;
+}
+
+.nome_lanche {
+    font-weight: bold;
+    font-size: 3ex;
+}
+
+.preco {
+    font-weight: bold;
+    font-size: 2.5ex;
+}
+
+.descricao {
+    font-size: small;
+}
+
+.infos {
+    display: flex;
+    border-radius: 10px;
+    border-style: solid;
+    border-color: gray;
+}
+
+.imagem {
+    margin: 0px;
+    padding: 0px;
+    border-style: none;
+}
+
+.imagem img {
+    border-style: none;
+    height: 125px;
+    width: 125px;
+    border-radius: 5px;
+    margin: 0px;
+}
+
+.texto {
+    width: 100%;
+    padding: 5px;
+}
