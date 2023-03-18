@@ -4,23 +4,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sauce Burguer</title>
+    <title>Document</title>
 </head>
 <body>
-    <ul>
-        <li><a href="/gerenciar/">Gerenciar</a></li>
-        <li><a href="/consulta/">Consultar</a></li>
-    </ul>
-
-    A database tem um total de {{tamanho}}
-
     {% for lanche in lanches %}
-    <div style="border: 1px; margin: 30px;">
     <br />
     {{lanche.nome}}<br />
     {{lanche.preco}}<br />
-    <img src="{{lanche.url_imagem}}" />
-    </div>
+
     {% endfor %}
 </body>
 </html>

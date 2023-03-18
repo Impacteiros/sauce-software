@@ -23,3 +23,17 @@ Base.metadata.create_all(engine)
 # Criando uma sessão para interagir com o banco de dados
 Session = sessionmaker(bind=engine)
 session = Session()
+
+def adicionar_produto(nome, preco, url_imagem):
+      engine.connect()
+      produto = Produto(nome=nome, preco=preco, url_imagem=url_imagem)
+      session.add(produto)
+      session.commit()
+      session.close()
+      
+
+def remover_lanche(id):
+        resultado = session.query(Produto).get(id)
+        session.delete(resultado)
+
+lista_lanches = session.query(Produto)

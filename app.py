@@ -1,25 +1,26 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 import requests, sqlalchemy
 import database
 
 app = Flask(__name__)
 
+lanches = database.lista_lanches
+
 @app.route("/")
 def home():
-    return "Hello World!!"
+    tamanho = database.lista_lanches.count()
+    return render_template("index.html", tamanho=tamanho, lanches=lanches)
 
-@app.route("/inserir/")
-def inserir():
-    nome = request.args.get("nome")
-    preco = request.args.get("preco")
-    url = request.args.get("url")
+@app.route("/gerenciar/", methods=["POST", "GET"])
+def gerenciar():
+    nome = request.form.get("nome")
+    preco = request.form.get("preco")
+    url = request.form.get("url")
     
     if nome and preco and url:
-        produto = database.Produto(nome=nome, preco=preco, url_imagem=url)
-        database.session.add(produto)
-        database.session.commit()
-        return "adicionado"
-    return render_template("index.html")
+        database.adicionar_produto(nome, preco, url)
+        return redirect("/")
+    return render_template("gerenciar.html", lanches=lanches)
 
 @app.route("/consulta/<id>")
 def consulta(id):
@@ -27,6 +28,11 @@ def consulta(id):
     if not retorno:
         return "Não encontrado"
     return f"Olá {retorno.nome} seu preço é de {retorno.preco}, foto: <img src=\"{retorno.url_imagem}\" />"
+
+@app.route("/remover/<id>")
+def remover(id):
+    database.remover_lanche(id)
+    return render_template("gerenciar.html", lanches=lanches)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True)
