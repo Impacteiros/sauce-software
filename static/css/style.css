@@ -1,5 +1,5 @@
 body {
-    background-color: whitesmoke;
+    background-color: #FFE500;
 }
 
 .container {
@@ -9,19 +9,19 @@ body {
 
 .infos:hover {
 
-  box-shadow: 0 0 20px red;
+  box-shadow: 0 0 20px yellow;
   animation: color-change 2s infinite;
 }
 
 @keyframes color-change {
   0% {
-    box-shadow: 0 0 20px red;
+    box-shadow: 0 0 20px black;
   }
   50% {
-    box-shadow: 0 0 20px blue;
+    box-shadow: 0 0 20px yellow;
   }
   100% {
-    box-shadow: 0 0 20px red;
+    box-shadow: 0 0 20px black;
   }
 }
 
@@ -43,6 +43,7 @@ body {
 .nome_lanche {
     font-weight: bold;
     font-size: 3ex;
+    max-width: 170px;
 }
 
 .preco {
@@ -58,7 +59,7 @@ body {
     display: flex;
     border-radius: 10px;
     border-style: solid;
-    border-color: gray;
+    border-color: rgb(0, 0, 0);
 }
 
 .imagem {

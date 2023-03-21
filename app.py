@@ -32,7 +32,7 @@ def consulta(id):
 @app.route("/remover/<id>")
 def remover(id):
     database.remover_lanche(id)
-    return render_template("gerenciar.html", lanches=lanches)
+    return redirect(request.referrer)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=8080)
