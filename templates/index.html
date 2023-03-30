@@ -6,12 +6,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sauce Burguer</title>
+
 </head>
 <body>
-    <center><img src="{{url_for('static', filename="images/logo_topo.png")}}" width="300" height="150" /></center>
-    <ul>
-        <li><a href="/gerenciar/">Gerenciar</a></li>
-    </ul>
+
+    <div class="overlay">
+        <label for="toggle"></label>
+    </div>
+    
+    <input type="checkbox" id="toggle" name="toggle">
+    <div class="verticalNav">
+        <a href="/gerenciar">Gerenciar produtos</a>
+        <a href="/adicionar">Adicionar novo produto</a>
+    </div>
+    
+    
     <div class="container">
     {% for lanche in lanches %}
     <div class="infos">
