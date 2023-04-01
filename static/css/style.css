@@ -152,3 +152,21 @@ body {
 #toggle:checked  ~ .kittens {
   margin-top: 135px;
 }
+
+.remover {
+  background-color: red;
+  font-weight: bold;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.remover a {
+  text-decoration: none;
+  color: white;
+}
+
+header {
+  text-align: center;
+}

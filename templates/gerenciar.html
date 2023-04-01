@@ -1,33 +1,53 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Cadastro de Produto</title>
-    <link rel="stylesheet" href="{{url_for('static', filename="css/style_gerenciar.css")}}">
+    <link rel="stylesheet" href="{{url_for('static', filename="css/style.css")}}">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sauce Burguer</title>
+
+    <script>
+        const confirmAction = () => {
+                const response = confirm("Are you sure you want to do that?");
+
+                if (response) {
+                    alert("Removido");
+                } else {
+                    alert("Cancel was pressed");
+                }
+            }
+    </script>
+
 </head>
-
 <body>
-    <div class="wrapper">
-        <div class="content">
-            <div id="form">
-                <h1>Cadastro de Produto</h1>
-                <form method="post">
-                    <label for="nome">Nome:</label>
-                    <input type="text" id="nome" name="nome">
 
-                    <label for="descricao">Descrição:</label>
-                    <textarea id="descricao" name="descricao"></textarea>
-
-                    <label for="preco">Preço:</label>
-                    <input type="text" id="preco" name="preco">
-
-                    <label for="url_imagem">URL da Imagem:</label>
-                    <input type="text" id="url_imagem" name="url">
-
-                    <input type="submit" value="Cadastrar">
-                </form>
-            </div>
+    <div class="overlay">
+        <label for="toggle"></label>
+    </div>
+    
+    <input type="checkbox" id="toggle" name="toggle">
+    <div class="verticalNav">
+        <a href="/">Inicio</a>
+        <a href="/adicionar">Adicionar novo produto</a>
+    </div>
+    <header><h1>PAINEL DE ADMINISTRAÇÃO</h1></header>
+    <div class="container">
+    {% for lanche in lanches %}
+    <div class="infos">
+        <div class="texto">
+        <ul>
+    <li class="nome_lanche">{{lanche.nome}}</li>
+    <li class="descricao">{{lanche.descricao[:110]}}</li>
+    <li class="preco">{{lanche.preco}}</li>
+    <li class="remover"><a href="/remover/{{lanche.id}}" onclick="return confirm('Você tem certeza que deseja apagar esse produto?')">REMOVER</a></li>
+        </ul>
         </div>
+        <div class="imagem">
+    <img src="{{lanche.url_imagem}}" />
+        </div>
+    </div>
+    {% endfor %}
+</div>
 </body>
-
 </html>
