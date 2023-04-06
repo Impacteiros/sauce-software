@@ -101,7 +101,7 @@ body {
   display: block;
   position: relative;
   top: 30px;
-  left: 200px;
+  left: 50%;
   width: 30px;
   height: 16px;
   border-top: 2px solid #000;
@@ -136,8 +136,10 @@ body {
 }
 
 .verticalNav a:hover {
-  width: 120px;
-  background-color: #fff;
+  border-style: solid;
+  border-radius: 3px;
+  width: fit-content;
+  padding: 2px;
 }
 
 #toggle {
