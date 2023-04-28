@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="{{url_for('static', filename="css/style.css")}}">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sauce Burguer</title>
+
+</head>
+
+    <center><h1>Cozinha</h1></center>
+    <div class="container">
+        {% for mesa in pedidos %}
+        <div class="infos">
+            <div class="texto">
+        <b>Mesa:</b> {{mesa}}<br>
+        {% for lanche in lanches %}
+        {% if lanche.id in pedidos[mesa] %}
+        {{lanche.nome}}<br>
+        {% endif %}
+        {% endfor %}
+        </div>
+        </div>
+        <br />
+        {% endfor %}
+    </div>
+</body>
+</html>

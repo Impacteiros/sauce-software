@@ -8,7 +8,7 @@
     <title>Sauce Burguer</title>
 
 </head>
-<body>
+<body style="background-color: #c0ad00;">
 
     <div class="overlay">
         <label for="toggle"></label>
@@ -20,23 +20,27 @@
         <a href="/adicionar">Adicionar novo produto</a>
     </div>
     
-    
+    <center><h1>Carrinho</h1></center>
     <div class="container">
-    {% for lanche in lanches %}
+    {% for produto in carrinho %}
     <div class="infos">
         <div class="texto">
         <ul>
-    <li class="nome_lanche">{{lanche.nome}}</li>
-    <li class="descricao">{{lanche.descricao[:110]}}</li>
-    <li class="preco">{{lanche.preco}}</li>
+    <li class="nome_lanche">{{produto.nome}}</li>
+    <li class="descricao">{{produto.descricao[:110]}}</li>
+    <li class="preco">{{produto.preco}}</li>
         </ul>
-        <a href="/carrinho/adicionar/{{lanche.id}}">Adicionar ao carrinho</a>
+        <a href="/carrinho/remover/{{produto.id}}">Remover do carrinho</a>
         </div>
         <div class="imagem">
-    <img src="{{lanche.url_imagem}}" />
+    <img src="{{produto.url_imagem}}" />
         </div>
     </div>
     {% endfor %}
+    <form method="post" action="/carrinho/enviar">
+        <input type="number" placeholder="MESA" id="mesa" name="mesa" required/></center><br />
+        <input type="submit" style="font-size: 2.5rem;">
+    </form>
 </div>
 </body>
 </html>

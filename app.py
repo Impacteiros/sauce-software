@@ -5,12 +5,43 @@ import database
 app = Flask(__name__)
 
 lanches = database.lista_lanches
+lista_carrinho = []
+pedidos_cozinha = {}
 
 @app.route("/")
 def home():
     return render_template("index.html", lanches=lanches)
 
-@app.route("/gerenciar")
+@app.route("/carrinho/", methods=["POST", "GET"])
+def carrinho():
+    carrinho_render = []
+    for id in lista_carrinho:
+        carrinho_render.append(database.session.query(database.Produto).get(id))
+    
+    return render_template("carrinho.html", carrinho=carrinho_render, lanches=lanches)
+
+@app.route("/carrinho/adicionar/<id>")
+def adicinar_carrinho(id):
+    lista_carrinho.append(int(id))
+    return redirect("/")
+
+@app.route("/carrinho/remover/<id>")
+def remover_carrinho(id):
+    lista_carrinho.remove(id)
+    return redirect("/carrinho")
+
+@app.route("/carrinho/enviar/", methods=["POST", "GET"])
+def enviar_cozinha():
+    mesa_numero = request.form.get("mesa")
+    pedidos_cozinha[mesa_numero] = tuple(lista_carrinho)
+    lista_carrinho.clear()
+    return redirect("/carrinho")
+
+@app.route("/debug/")
+def debug():
+    return pedidos_cozinha
+
+@app.route("/gerenciar/")
 def gerenciar():
     return render_template("gerenciar.html", lanches=lanches)
 
@@ -38,5 +69,14 @@ def remover(id):
     database.remover_lanche(id)
     return redirect(request.referrer)
 
+@app.route("/cozinha/")
+def cozinha():
+    cozinha_render = []
+    for mesa in pedidos_cozinha:
+        for id in pedidos_cozinha[mesa]:
+            cozinha_render.append(database.session.query(database.Produto).get(id))
+
+    return render_template("cozinha.html", pedidos=pedidos_cozinha, lanches=cozinha_render)
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080, debug=True)
