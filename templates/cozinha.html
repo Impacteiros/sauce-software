@@ -15,11 +15,12 @@
         <div class="infos">
             <div class="texto">
         <b>Mesa:</b> {{mesa}}<br>
-        {% for lanche in lanches %}
-        {% if lanche.id in pedidos[mesa] %}
-        {{lanche.nome}}<br>
-        {% endif %}
-        {% endfor %}
+                {%for produto in pedidos[mesa]%}
+
+                {{ produto }} <br>
+
+                {%endfor%}
+        <button>Finalizar pedido (Pendente)</button>
         </div>
         </div>
         <br />

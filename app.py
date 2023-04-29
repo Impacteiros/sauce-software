@@ -27,15 +27,20 @@ def adicinar_carrinho(id):
 
 @app.route("/carrinho/remover/<id>")
 def remover_carrinho(id):
-    lista_carrinho.remove(id)
+    lista_carrinho.remove(int(id))
     return redirect("/carrinho")
 
 @app.route("/carrinho/enviar/", methods=["POST", "GET"])
 def enviar_cozinha():
     mesa_numero = request.form.get("mesa")
-    pedidos_cozinha[mesa_numero] = tuple(lista_carrinho)
+    produtos_enviar = []
+    for id in lista_carrinho:
+        query_result = database.session.query(database.Produto).get(id)
+        produtos_enviar.append(query_result.nome)
+
+    pedidos_cozinha[mesa_numero] = produtos_enviar
     lista_carrinho.clear()
-    return redirect("/carrinho")
+    return redirect("/")
 
 @app.route("/debug/")
 def debug():
