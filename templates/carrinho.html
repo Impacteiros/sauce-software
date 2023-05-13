@@ -28,7 +28,7 @@
         <ul>
     <li class="nome_lanche">{{produto.nome}}</li>
     <li class="descricao">{{produto.descricao[:110]}}</li>
-    <li class="preco">{{produto.preco}}</li>
+    <li class="preco">R$ {{ "%.2f" % produto.preco }}</li>
         </ul>
         <a href="/carrinho/remover/{{produto.id}}">Remover do carrinho</a>
         </div>
@@ -37,6 +37,7 @@
         </div>
     </div>
     {% endfor %}
+    <center><h1>TOTAL: R$ {{preco_total}}</h1></center>
     <form method="post" action="/carrinho/enviar">
         <input type="number" placeholder="MESA" id="mesa" name="mesa" required/></center><br />
         <input type="submit" style="font-size: 2.5rem;">

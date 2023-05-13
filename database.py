@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, Double
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -14,7 +14,7 @@ class Produto(Base):
 
     id = Column(Integer, primary_key=True)
     nome = Column(String)
-    preco = Column(String)
+    preco = Column(Double)
     descricao = Column(String)
     url_imagem = Column(String)
 

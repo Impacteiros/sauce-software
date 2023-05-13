@@ -15,10 +15,13 @@ def home():
 @app.route("/carrinho/", methods=["POST", "GET"])
 def carrinho():
     carrinho_render = []
+    preco_total = 0
     for id in lista_carrinho:
-        carrinho_render.append(database.session.query(database.Produto).get(id))
+        produto = database.session.query(database.Produto).get(id)
+        preco_total += produto.preco
+        carrinho_render.append(produto)
     
-    return render_template("carrinho.html", carrinho=carrinho_render, lanches=lanches)
+    return render_template("carrinho.html", carrinho=carrinho_render, lanches=lanches, preco_total=preco_total)
 
 @app.route("/carrinho/adicionar/<id>")
 def adicinar_carrinho(id):

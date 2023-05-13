@@ -28,7 +28,7 @@
         <ul>
     <li class="nome_lanche">{{lanche.nome}}</li>
     <li class="descricao">{{lanche.descricao[:110]}}</li>
-    <li class="preco">{{lanche.preco}}</li>
+    <li class="preco">R$ {{ "%.2f" % lanche.preco }}</li>
         </ul>
         <a href="/carrinho/adicionar/{{lanche.id}}">Adicionar ao carrinho</a>
         </div>
