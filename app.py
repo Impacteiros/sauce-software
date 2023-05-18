@@ -8,6 +8,14 @@ lanches = database.lista_lanches
 lista_carrinho = []
 pedidos_cozinha = {}
 
+
+def validar_perm():
+    if session:
+        if session['usuario'][1] == 'administrador':
+            return True
+    return False
+
+
 @app.route("/")
 def home():
     try:
@@ -89,10 +97,9 @@ def debug():
 
 @app.route("/gerenciar/")
 def gerenciar():
-    if session:
-        if session['usuario'][1] == 'administrador':
+    if validar_perm():
             return render_template("gerenciar.html", lanches=lanches)
-    return "Você não tem permissão", 403
+    return "Acesso negado", 403
 
 @app.route("/adicionar/", methods=["POST", "GET"])
 def adicionar():
@@ -104,8 +111,7 @@ def adicionar():
     if nome and preco and url:
         database.adicionar_produto(nome, descricao, preco, url)
         return redirect("/")
-    if session:
-        if session['usuario'][1] == 'administrador':
+    if validar_perm():
             return render_template("adicionar.html", lanches=lanches)
     return "Você não tem permissão.", 403
 
@@ -118,8 +124,10 @@ def consulta(id):
 
 @app.route("/remover/<id>")
 def remover(id):
-    database.remover_lanche(id)
-    return redirect(request.referrer)
+    if validar_perm():
+        database.remover_lanche(id)
+        return redirect(request.referrer)
+    return "Acesso negado", 403
 
 @app.route("/cozinha/")
 def cozinha():
@@ -131,4 +139,4 @@ def cozinha():
     return render_template("cozinha.html", pedidos=pedidos_cozinha, lanches=cozinha_render)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8080, debug=True)
+    app.run(host='0.0.0.0', debug=True)

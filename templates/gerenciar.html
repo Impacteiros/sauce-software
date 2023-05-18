@@ -26,9 +26,9 @@
     <div class="infos">
         <div class="texto">
         <ul>
-    <li class="nome_lanche">{{lanche.nome}}</li>
-    <li class="descricao">{{lanche.descricao[:110]}}</li>
-    <li class="preco">{{lanche.preco}}</li>
+    <li class="nome_lanche">{{ lanche.nome }}</li>
+    <li class="descricao">{{ lanche.descricao[:110] }}</li>
+    <li class="preco">R$ {{" %.2f" % lanche.preco }}</li>
     <li class="remover"><a href="/remover/{{lanche.id}}" onclick="return confirm('Você tem certeza que deseja apagar esse produto?')">REMOVER</a></li>
         </ul>
         </div>

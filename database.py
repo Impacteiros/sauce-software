@@ -2,9 +2,10 @@ import os
 from sqlalchemy import create_engine, Column, Integer, String, Double
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import hashlib
 
 # Conexão BD
-db_path = os.path.join(os.getcwd(), 'produtos.db')
+db_path = os.path.join(os.getcwd(), 'database.db')
 engine = create_engine(f'sqlite:///{db_path}', echo=True)
 
 Base = declarative_base()
@@ -36,18 +37,20 @@ session = Session()
 
 def cadastrar_funcionario(nome, usuario, senha, cargo):
       engine.connect()
-      funcionario = Funcionario(nome=nome, usuario=usuario, senha=senha, cargo=cargo)
+      senha_hash = hashlib.sha256(senha.encode()).hexdigest()
+      funcionario = Funcionario(nome=nome, usuario=usuario, senha=senha_hash, cargo=cargo)
       session.add(funcionario)
       session.commit()
       session.close()
 
 def validar_login(usuario, senha):
       engine.connect()
-      res = session.query(Funcionario).filter(Funcionario.usuario == usuario).all()
-      if res:
-            res = res[0]
-            if res.senha == senha:
-                  return [True, res.nome, res.cargo]
+      resp_usuario = session.query(Funcionario).filter(Funcionario.usuario == usuario).first()
+      session.close()
+      if resp_usuario:
+            senha_hash = hashlib.sha256(senha.encode()).hexdigest()
+            if resp_usuario.senha == senha_hash:
+                  return [True, resp_usuario.nome, resp_usuario.cargo]
             else:
                   return [False, "Usuário e/ou senha incorreto(s)."]
       return [False, "Usuário e/ou senha incorreto(s)."]

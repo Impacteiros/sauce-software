@@ -38,7 +38,7 @@
         </div>
     </div>
     {% endfor %}
-    <center><h1>TOTAL: R$ {{preco_total}}</h1></center>
+    <center><h1>TOTAL: R$ {{"%.2f" % preco_total }}</h1></center>
     <form method="post" action="/carrinho/enviar">
         <input type="number" placeholder="MESA" id="mesa" name="mesa" required/></center><br />
         <input type="submit" style="font-size: 2.5rem;">
