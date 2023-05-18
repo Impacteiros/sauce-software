@@ -9,6 +9,15 @@ engine = create_engine(f'sqlite:///{db_path}', echo=True)
 
 Base = declarative_base()
 
+class Funcionario(Base):
+      __tablename__ = "funcionarios"
+
+      id = Column(Integer, primary_key=True)
+      nome = Column(String)
+      usuario = Column(String)
+      senha = Column(String)
+      cargo = Column(String)
+
 class Produto(Base):
     __tablename__ = "produtos"
 
@@ -24,6 +33,25 @@ Base.metadata.create_all(engine)
 # Criando uma sessão para interagir com o banco de dados
 Session = sessionmaker(bind=engine)
 session = Session()
+
+def cadastrar_funcionario(nome, usuario, senha, cargo):
+      engine.connect()
+      funcionario = Funcionario(nome=nome, usuario=usuario, senha=senha, cargo=cargo)
+      session.add(funcionario)
+      session.commit()
+      session.close()
+
+def validar_login(usuario, senha):
+      engine.connect()
+      res = session.query(Funcionario).filter(Funcionario.usuario == usuario).all()
+      if res:
+            res = res[0]
+            if res.senha == senha:
+                  return [True, res.nome, res.cargo]
+            else:
+                  return [False, "Usuário e/ou senha incorreto(s)."]
+      return [False, "Usuário e/ou senha incorreto(s)."]
+
 
 def adicionar_produto(nome, descricao, preco, url_imagem):
       engine.connect()

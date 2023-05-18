@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, redirect
-import requests, sqlalchemy
+from flask import Flask, render_template, request, redirect, url_for, session
 import database
 
 app = Flask(__name__)
+app.secret_key = "!yw2gC8!BeM3"
 
 lanches = database.lista_lanches
 lista_carrinho = []
@@ -10,7 +10,40 @@ pedidos_cozinha = {}
 
 @app.route("/")
 def home():
-    return render_template("index.html", lanches=lanches)
+    try:
+        session['usuario']
+        nome = session['usuario'][0]
+        cargo = session['usuario'][1]
+    except KeyError:
+        return redirect("/login/")
+    return render_template("index.html", lanches=lanches, nome=nome, cargo=cargo)
+
+@app.route("/login/", methods=["POST", "GET"])
+def login():
+    if 'usuario' in session:
+        return redirect(url_for('home'))
+    usuario = request.form.get("usuario")
+    senha = request.form.get("senha")
+    if usuario and senha:
+        validacao = database.validar_login(usuario, senha)
+        if validacao[0]:
+            session['usuario'] = [validacao[1], validacao[2]]
+            return redirect(url_for("home"))
+        return render_template("login.html", erro=validacao[1])
+    return render_template("login.html")
+
+@app.route("/cadastro/funcionario/", methods=["POST", "GET"])
+def cadastro():
+    nome = request.form.get("nome")
+    usuario = request.form.get("usuario")
+    senha = request.form.get("senha")
+    cargo = request.form.get("cargo")
+    if nome and usuario and senha and cargo:
+        database.cadastrar_funcionario(nome, usuario, senha, cargo)
+        return "Cadastrado com sucesso"
+    else:
+        return render_template("cadastro_funcionario.html")
+
 
 @app.route("/carrinho/", methods=["POST", "GET"])
 def carrinho():
@@ -22,6 +55,11 @@ def carrinho():
         carrinho_render.append(produto)
     
     return render_template("carrinho.html", carrinho=carrinho_render, lanches=lanches, preco_total=preco_total)
+
+@app.route("/deslogar/")
+def deslogar():
+    session.clear()
+    return redirect("/login/")
 
 @app.route("/carrinho/adicionar/<id>")
 def adicinar_carrinho(id):
@@ -51,7 +89,10 @@ def debug():
 
 @app.route("/gerenciar/")
 def gerenciar():
-    return render_template("gerenciar.html", lanches=lanches)
+    if session:
+        if session['usuario'][1] == 'administrador':
+            return render_template("gerenciar.html", lanches=lanches)
+    return "Você não tem permissão", 403
 
 @app.route("/adicionar/", methods=["POST", "GET"])
 def adicionar():
@@ -63,7 +104,10 @@ def adicionar():
     if nome and preco and url:
         database.adicionar_produto(nome, descricao, preco, url)
         return redirect("/")
-    return render_template("adicionar.html", lanches=lanches)
+    if session:
+        if session['usuario'][1] == 'administrador':
+            return render_template("adicionar.html", lanches=lanches)
+    return "Você não tem permissão.", 403
 
 @app.route("/consulta/<id>")
 def consulta(id):

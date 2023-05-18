@@ -4,13 +4,14 @@
 <head>
     <title>Cadastro de Produto</title>
     <link rel="stylesheet" href="{{url_for('static', filename="css/style_gerenciar.css")}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
 </head>
 
 <body>
     <div class="wrapper">
         <div class="content">
             <div id="form">
-                <h1>Cadastro de Produto</h1>
+                <h1><a href="/"><i class="fas fa-arrow-left" style="color: rgb(0, 0, 0);"></i></a> Cadastro de Produto</h1>
                 <form method="post">
                     <label for="nome">Nome:</label>
                     <input type="text" id="nome" name="nome">
