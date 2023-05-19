@@ -65,7 +65,10 @@ def adicionar_produto(nome, descricao, preco, url_imagem):
       
 
 def remover_lanche(id):
+        engine.connect()
         resultado = session.query(Produto).get(id)
         session.delete(resultado)
+        session.commit()
+        session.close()
 
 lista_lanches = session.query(Produto)

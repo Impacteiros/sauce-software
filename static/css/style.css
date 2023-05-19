@@ -126,7 +126,7 @@ body {
   top: -55px;
   height: 125px;
   padding: 10px;
-  padding-left: 20%;
+  padding-left: 30%;
   font-size: 22px;
   box-sizing: border-box;
   background-color: #8f8100;
@@ -175,4 +175,22 @@ body {
 
 header {
   text-align: center;
+}
+
+.mesa {
+  text-align: center;
+}
+
+.mesa input[type='number'] {
+  height: 5vh;
+  background-color: #ccc;
+  font-size: 2vh;
+  display: block;
+  width: 50%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+  margin-left: 25%;
 }
