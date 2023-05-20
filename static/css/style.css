@@ -8,8 +8,17 @@ body {
   flex-direction: column;
 }
 
+.finalizados {
+  margin-top: -10px;
+  display: flex;
+  flex-direction: row;
+}
+
+
 h3 {
   text-align: center;
+  margin: 0;
+
 }
 
 .infos:hover {
@@ -65,6 +74,7 @@ h3 {
     border-radius: 10px;
     border-style: solid;
     border-color: rgb(0, 0, 0);
+    flex-basis: calc(48.00% - 20px);
 }
 
 .imagem {
@@ -193,4 +203,35 @@ header {
   margin-bottom: 20px;
   text-align: center;
   margin-left: 25%;
+}
+
+.finalizados .infos {
+  background-color: #288d00;
+  display: flex;
+  flex-direction: column;
+}
+
+.atendente {
+  text-align: center;
+  margin-top: auto;
+}
+
+.infos .texto {
+  flex: 1;
+}
+
+.ativos {
+  margin-top: -10px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.ativos .infos {
+  background-color: #d3d3d3;
+  display: flex;
+  flex-direction: column;
+}
+
+h1 {
+  text-align: center;
 }

@@ -1,8 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+from flask_socketio import SocketIO
 import database
 
 app = Flask(__name__)
 app.secret_key = "!yw2gC8!BeM3"
+app.config['SECRET_KEY'] = "!yw2gC8!BeM3"
+
+socketio = SocketIO(app)
 
 lanches = database.lista_lanches
 lista_carrinho = []
@@ -15,6 +19,10 @@ def validar_perm():
             return True
     return False
 
+@socketio.on('atualizacao')
+def atualizar_cozinha():
+    socketio.emit('atualizacao', {'data': "Dados atualizados"})
+
 
 @app.route("/")
 def home():
@@ -24,7 +32,8 @@ def home():
         cargo = session['usuario'][1]
     except KeyError:
         return redirect("/login/")
-    return render_template("index.html", lanches=lanches, nome=nome, cargo=cargo)
+    return render_template("index.html", lanches=lanches, 
+                           nome=nome, cargo=cargo)
 
 @app.route("/login/", methods=["POST", "GET"])
 def login():
@@ -62,7 +71,8 @@ def carrinho():
         preco_total += produto.preco
         carrinho_render.append(produto)
     
-    return render_template("carrinho.html", carrinho=carrinho_render, lanches=lanches, preco_total=preco_total)
+    return render_template("carrinho.html", carrinho=carrinho_render, 
+                           lanches=lanches, preco_total=preco_total)
 
 @app.route("/deslogar/")
 def deslogar():
@@ -83,10 +93,12 @@ def remover_carrinho(id):
 def enviar_cozinha():
     mesa_numero = request.form.get("mesa")
     produtos_enviar = []
+    atualizar_cozinha()
+
     for id in lista_carrinho:
         query_result = database.session.query(database.Produto).get(id)
-        produtos_enviar.append(query_result.nome)
-
+        produtos_enviar.append({"nome": query_result.nome, "id": id, "preco": query_result.preco})
+    
     pedidos_cozinha[mesa_numero] = produtos_enviar
     lista_carrinho.clear()
     return redirect("/")
@@ -131,12 +143,43 @@ def remover(id):
 
 @app.route("/cozinha/")
 def cozinha():
-    cozinha_render = []
-    for mesa in pedidos_cozinha:
-        for id in pedidos_cozinha[mesa]:
-            cozinha_render.append(database.session.query(database.Produto).get(id))
+    query_resp = database.session.query(database.Pedidos).order_by(database.Pedidos.id.desc()).limit(5).all()
+    ultimos_pedidos = {}
+    lista_pedidos = []
+    print(query_resp)
+    for pedido in query_resp:
+        nome_lanches = []
+        ultimos_pedidos = {}
+        lanches = pedido.ids_lanches.split(",")
+        for id_lanche in lanches:
+            lanche = database.get_lanche(id_lanche)
+            nome_lanches.append(lanche.nome)
+        
+        ultimos_pedidos["mesa"] = pedido.mesa
+        ultimos_pedidos["atendente"] = pedido.atendente
+        ultimos_pedidos["lanches"] = nome_lanches
+        lista_pedidos.append(ultimos_pedidos)
 
-    return render_template("cozinha.html", pedidos=pedidos_cozinha, lanches=cozinha_render)
+    return render_template("cozinha.html", pedidos=pedidos_cozinha, atendente=session['usuario'][0], finalizados=lista_pedidos)
+
+@app.route("/cozinha/finalizar/<id>", methods=["POST", "GET"])
+def finalizar_pedido(id):
+
+    id_lanches = []
+    for mesa in pedidos_cozinha:
+        for produto in pedidos_cozinha[mesa]:
+            id_lanches.append(str(produto['id']))
+
+    preco_total = 0
+    for mesa in pedidos_cozinha:
+        for produto in pedidos_cozinha[mesa]:
+            preco_total += produto['preco']
+    pedidos_cozinha.pop(id)
+
+    ids = ",".join(id_lanches)
+    database.salvar_pedido(ids, session['usuario'][0], preco_total, id)
+    return redirect(url_for("cozinha"))
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    socketio.run(app)
+    app.run(Debug=True)
