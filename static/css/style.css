@@ -235,3 +235,122 @@ header {
 h1 {
   text-align: center;
 }
+
+.cliente {
+  text-align: center;
+}
+
+.cliente li {
+  margin: 1rem;
+  font-weight: bold;
+}
+
+.cliente select {
+  font-size: 1.3rem;
+}
+
+#semcadastro {
+  display: none;
+  align-items: center;
+  margin: auto;
+}
+
+#semcadastro input {
+  flex: 1;
+  margin: auto;
+}
+
+#semcadastro input[type="submit"] {
+  margin: 0;
+}
+
+#cadastro {
+  display: none;
+  text-align: center;
+  align-items: center;
+  max-width: 80%;
+  margin: auto;
+}
+
+#cadastro form {
+  max-width: 400px;
+  width: 100%;
+}
+
+#cadastro label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+#cadastro input[type="text"],
+#cadastro input[type="tel"],
+#cadastro input[type="email"], #semcadastro input[type="number"] {
+  height: 5vh;
+  background-color: #ccc;
+  font-size: 2vh;
+  display: block;
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  align-items: center;
+  text-align: center;
+}
+
+#cadastro input[type="submit"] {
+  display: block;
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  width: 50%;
+  margin-left: 25%;
+}
+
+#cadastrado {
+  display: none;
+  align-items: center;
+}
+
+.resultados {
+  display: flex;
+  vertical-align: center;
+  justify-content: center;
+  margin-left: auto;
+  text-align: center;
+}
+
+.resultados form {
+  display: flex;
+  align-items: start;
+  flex-direction: column;
+}
+
+.resultados input[type="submit"] {
+  width: 100%;
+  height: 5vh;
+  font-size: 2vh;
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.resultados ul {
+  list-style-type: none;
+  align-items: start;
+  font-size: 1.2rem;
+}
+
+.resultado li {
+  padding-bottom: 30px;
+}
+
+.nomes {
+  padding: 3px;
+  border:rgb(0, 0, 0) 1px;
+  border-style: solid;
+  width: 300px;
+}

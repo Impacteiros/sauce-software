@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine, Column, Integer, String, Numeric, DateTime, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, Numeric, DateTime, Boolean, and_
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import hashlib
@@ -12,7 +12,7 @@ engine = create_engine(f'sqlite:///{db_path}', echo=True)
 Base = declarative_base()
 
 class Funcionario(Base):
-      __tablename__ = "funcionarios"
+      __tablename__ = "funcionario"
 
       id = Column(Integer, primary_key=True)
       nome = Column(String(100))
@@ -21,24 +21,35 @@ class Funcionario(Base):
       cargo = Column(String(20))
 
 class Produto(Base):
-      __tablename__ = "produtos"
+      __tablename__ = "produto"
 
       id = Column(Integer, primary_key=True)
       nome = Column(String(20))
       preco = Column(Numeric(precision=5, scale=2))
       descricao = Column(String(100))
       url_imagem = Column(String)
+      categoria = Column(String(20))
       ativo = Column(Boolean)
 
-class Pedidos(Base):
-      __tablename__ = "pedidos"
+class Pedido(Base):
+      __tablename__ = "pedido"
 
       id = Column(Integer, primary_key=True)
+      id_cliente = Column(Integer)
       ids_lanches = Column(String(100))
       total = Column(Numeric(precision=5, scale=2))
       data = Column(DateTime)
       atendente = Column(String(20))
       mesa = Column(Integer)
+
+class Cliente(Base):
+      __tablename__ = "cliente"
+
+      id = Column(Integer, primary_key=True)
+      nome = Column(String(50))
+      endereco = Column(String(200))
+      celular = Column(String(15))
+      email = Column(String(50))
 
 # Criando a tabela no banco de dados
 Base.metadata.create_all(engine)
@@ -68,28 +79,47 @@ def validar_login(usuario, senha):
       return [False, "Usuário e/ou senha incorreto(s)."]
 
 
-def adicionar_produto(nome, descricao, preco, url_imagem):
+def adicionar_produto(nome, descricao, preco, categoria, url_imagem):
       engine.connect()
-      produto = Produto(nome=nome, descricao=descricao, preco=preco, url_imagem=url_imagem, ativo=True)
+      produto = Produto(nome=nome, descricao=descricao, preco=preco, categoria=categoria, url_imagem=url_imagem, ativo=True)
       session.add(produto)
       session.commit()
       session.close()
       
-def remover_lanche(id):
+def remover_produto(id):
         engine.connect()
         resultado = session.query(Produto).get(id)
         resultado.ativo = False
         session.commit()
         session.close()
 
-def salvar_pedido(data, usuario, preco, mesa):
+def salvar_pedido(data, id_cliente, usuario, preco, mesa):
       engine.connect()
-      pedido = Pedidos(ids_lanches=data, total=preco, atendente=usuario, data=datetime.now(), mesa=mesa)
+      pedido = Pedido(ids_lanches=data, id_cliente=id_cliente, total=preco, atendente=usuario, data=datetime.now(), mesa=mesa)
       session.add(pedido)
       session.commit()
       session.close()
 
+def cadastrar_cliente(nome, endereco, celular, email):
+      engine.connect()
+      cliente = Cliente(nome=nome, endereco=endereco, celular=celular, email=email)
+      session.add(cliente)
+      session.commit()
+      session.close()
+
+def pesquisa_cliente(nome):
+      engine.connect()
+      query = session.query(Cliente).filter(Cliente.nome.like(f'{nome}%')).all()
+      session.close()
+      return query
+
+def get_cliente(id):
+      engine.connect()
+      query = session.query(Cliente).get(id)
+      return query
+
 def get_lanche(id):
       return session.query(Produto).get(id)
 
-lista_lanches = session.query(Produto).filter(Produto.ativo == True)
+lista_lanches = session.query(Produto).filter(and_(Produto.ativo == True, Produto.categoria == 'hamburguer'))
+lista_bebidas = session.query(Produto).filter(and_(Produto.ativo == True, Produto.categoria == 'bebida'))

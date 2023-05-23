@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_socketio import SocketIO
 import database
+import eventlet
 
 app = Flask(__name__)
 app.secret_key = "!yw2gC8!BeM3"
@@ -9,6 +10,7 @@ app.config['SECRET_KEY'] = "!yw2gC8!BeM3"
 socketio = SocketIO(app)
 
 lanches = database.lista_lanches
+bebidas = database.lista_bebidas
 lista_carrinho = []
 pedidos_cozinha = {}
 
@@ -23,6 +25,43 @@ def validar_perm():
 def atualizar_cozinha():
     socketio.emit('atualizacao', {'data': "Dados atualizados"})
 
+@app.route("/selecao/", methods=["GET", "POST"])
+def selecao():
+    nome = request.form.get("pesquisa")
+    session['mesa'] = request.form.get("mesa")
+    id_cliente = request.form.get("id_cliente")
+    sem_cadastro = request.form.get("sem_cadastro")
+    if sem_cadastro:
+        session['id_cliente'] = 0
+        return redirect(url_for("home"))
+    if id_cliente:
+        session['id_cliente'] = id_cliente
+        return redirect(url_for("home"))
+    if nome:
+        resultado = database.pesquisa_cliente(nome)
+        if resultado:
+            return render_template("selecao.html", clientes=resultado)
+        return render_template("selecao.html", clientes=False)
+    return render_template("selecao.html")
+
+@app.route("/selecao/pesquisa", methods=["GET", "POST"])
+def pesquisa_cliente():
+    nome = request.form.get("pesquisa")
+    resultado = database.pesquisa_cliente(nome)
+    if resultado:
+        return redirect(url_for("selecao"))
+    return "Não encontrou"
+    
+
+@app.route("/cadastro/cliente", methods=["POST"])
+def cadastro_cliente():
+    nome_cliente = request.form.get("nome")
+    endereco = request.form.get("endereco")
+    celular = request.form.get("celular")
+    email = request.form.get("email")
+    database.cadastrar_cliente(nome_cliente, endereco, celular, email)
+    session['cliente'] = nome_cliente
+    return redirect(url_for("home"))
 
 @app.route("/")
 def home():
@@ -32,8 +71,17 @@ def home():
         cargo = session['usuario'][1]
     except KeyError:
         return redirect("/login/")
-    return render_template("index.html", lanches=lanches, 
-                           nome=nome, cargo=cargo)
+    print(session)
+    if 'mesa' not in session or session['mesa'] == None:
+        return redirect(url_for('selecao'))
+    mesa = session['mesa']
+    if 'id_cliente' in session:
+        cliente = database.get_cliente(session['id_cliente'])
+        print(cliente)
+        return render_template("index.html", lanches=lanches, bebidas=bebidas,
+                          nome=nome, cargo=cargo, cliente=cliente, mesa=mesa)
+    return render_template("index.html", lanches=lanches, bebidas=bebidas,
+                           nome=nome, cargo=cargo, mesa=mesa)
 
 @app.route("/login/", methods=["POST", "GET"])
 def login():
@@ -72,7 +120,7 @@ def carrinho():
         carrinho_render.append(produto)
     
     return render_template("carrinho.html", carrinho=carrinho_render, 
-                           lanches=lanches, preco_total=preco_total)
+                           lanches=lanches, bebidas=bebidas, preco_total=preco_total)
 
 @app.route("/deslogar/")
 def deslogar():
@@ -91,26 +139,29 @@ def remover_carrinho(id):
 
 @app.route("/carrinho/enviar/", methods=["POST", "GET"])
 def enviar_cozinha():
-    mesa_numero = request.form.get("mesa")
+    mesa_numero = session['mesa']
     produtos_enviar = []
     atualizar_cozinha()
 
     for id in lista_carrinho:
         query_result = database.session.query(database.Produto).get(id)
-        produtos_enviar.append({"nome": query_result.nome, "id": id, "preco": query_result.preco})
+        produtos_enviar.append({"nome": query_result.nome, "id": id, "preco": query_result.preco, "id_cliente": session['id_cliente']})
     
     pedidos_cozinha[mesa_numero] = produtos_enviar
     lista_carrinho.clear()
-    return redirect("/")
+    session.pop('mesa')
+    session.pop('id_cliente')
+    flash("Pedido enviado para produção.", "sucesso")
+    return redirect(url_for("selecao"))
 
 @app.route("/debug/")
 def debug():
-    return pedidos_cozinha
+    return str(pedidos_cozinha['1'][0]['id_cliente'])
 
 @app.route("/gerenciar/")
 def gerenciar():
     if validar_perm():
-            return render_template("gerenciar.html", lanches=lanches)
+            return render_template("gerenciar.html", lanches=lanches, bebidas=bebidas)
     return "Acesso negado", 403
 
 @app.route("/adicionar/", methods=["POST", "GET"])
@@ -118,13 +169,14 @@ def adicionar():
     nome = request.form.get("nome")
     descricao = request.form.get("descricao")
     preco = request.form.get("preco")
+    categoria = request.form.get("categoria")
     url = request.form.get("url")
     
     if nome and preco and url:
-        database.adicionar_produto(nome, descricao, preco, url)
+        database.adicionar_produto(nome, descricao, preco, categoria, url)
         return redirect("/")
     if validar_perm():
-            return render_template("adicionar.html", lanches=lanches)
+            return render_template("adicionar.html", lanches=lanches, bebidas=bebidas)
     return "Você não tem permissão.", 403
 
 @app.route("/consulta/<id>")
@@ -137,16 +189,17 @@ def consulta(id):
 @app.route("/remover/<id>")
 def remover(id):
     if validar_perm():
-        database.remover_lanche(id)
+        database.remover_produto(id)
         return redirect(request.referrer)
     return "Acesso negado", 403
 
 @app.route("/cozinha/")
 def cozinha():
-    query_resp = database.session.query(database.Pedidos).order_by(database.Pedidos.id.desc()).limit(5).all()
+
+    query_resp = database.session.query(database.Pedido).order_by(database.Pedido.id.desc()).limit(5).all()
     ultimos_pedidos = {}
     lista_pedidos = []
-    print(query_resp)
+
     for pedido in query_resp:
         nome_lanches = []
         ultimos_pedidos = {}
@@ -165,21 +218,20 @@ def cozinha():
 @app.route("/cozinha/finalizar/<id>", methods=["POST", "GET"])
 def finalizar_pedido(id):
 
+    id_cliente = pedidos_cozinha[id][0]['id_cliente']
+
     id_lanches = []
-    for mesa in pedidos_cozinha:
-        for produto in pedidos_cozinha[mesa]:
-            id_lanches.append(str(produto['id']))
+    for produto in pedidos_cozinha[id]:
+        id_lanches.append(str(produto['id']))
 
     preco_total = 0
-    for mesa in pedidos_cozinha:
-        for produto in pedidos_cozinha[mesa]:
-            preco_total += produto['preco']
+    for produto in pedidos_cozinha[id]:
+        preco_total += produto['preco']
     pedidos_cozinha.pop(id)
 
     ids = ",".join(id_lanches)
-    database.salvar_pedido(ids, session['usuario'][0], preco_total, id)
+    database.salvar_pedido(ids, id_cliente, session['usuario'][0], preco_total, id)
     return redirect(url_for("cozinha"))
 
 if __name__ == "__main__":
-    socketio.run(app)
-    app.run(Debug=True)
+    socketio.run(app, debug=True, host='0.0.0.0')

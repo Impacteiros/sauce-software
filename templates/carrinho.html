@@ -39,12 +39,13 @@
     </div>
     {% endfor %}
     <center><h1>TOTAL: R$ {{"%.2f" % preco_total }}</h1></center>
+    {% if carrinho %}
     <div class="mesa">
         <form method="post" action="/carrinho/enviar">
-            <input type="number" placeholder="MESA" id="mesa" name="mesa" required/></center><br />
             <input type="submit" style="font-size: 2.5rem;">
         </form>
     </div>
+    {% endif %}
 </div>
 </body>
 </html>
