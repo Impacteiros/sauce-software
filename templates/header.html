@@ -1,0 +1,14 @@
+{% block header %}
+<div class="overlay">
+    <label for="toggle"></label>
+</div>
+<img src="{{url_for('static', filename="images/logo_topo.png")}}" width="120" height="50" style="position: absolute; z-index: 3; padding: 15px 15px"/>
+<input type="checkbox" id="toggle" name="toggle">
+<div class="verticalNav">
+    <a href="/"><i class="fas fa-home"></i></a>
+    {% if cargo == "administrador" %}<a href="/gerenciar"><i class="fas fa-cogs"></i></a>
+    <a href="/adicionar"><i class="fas fa-plus"></i></a>{% endif %}
+    <a href="/carrinho"><i class="fas fa-shopping-cart"></i></a>
+    <a href="/deslogar"><i class="fas fa-sign-out-alt"></i></a>
+</div>
+{% endblock %}

@@ -61,6 +61,7 @@ def cadastro_cliente():
     email = request.form.get("email")
     database.cadastrar_cliente(nome_cliente, endereco, celular, email)
     session['cliente'] = nome_cliente
+    flash("Cliente cadastrado com sucesso.", "sucesso")
     return redirect(url_for("home"))
 
 @app.route("/")
@@ -112,6 +113,7 @@ def cadastro():
 
 @app.route("/carrinho/", methods=["POST", "GET"])
 def carrinho():
+    cargo = session['usuario'][1]
     carrinho_render = []
     preco_total = 0
     for id in lista_carrinho:
@@ -119,7 +121,7 @@ def carrinho():
         preco_total += produto.preco
         carrinho_render.append(produto)
     
-    return render_template("carrinho.html", carrinho=carrinho_render, 
+    return render_template("carrinho.html", cargo=cargo, carrinho=carrinho_render, 
                            lanches=lanches, bebidas=bebidas, preco_total=preco_total)
 
 @app.route("/deslogar/")
@@ -156,12 +158,13 @@ def enviar_cozinha():
 
 @app.route("/debug/")
 def debug():
-    return str(pedidos_cozinha['1'][0]['id_cliente'])
+    return render_template("debug.html")
 
 @app.route("/gerenciar/")
 def gerenciar():
+    cargo = session['usuario'][1]
     if validar_perm():
-            return render_template("gerenciar.html", lanches=lanches, bebidas=bebidas)
+            return render_template("gerenciar.html", cargo=cargo, lanches=lanches, bebidas=bebidas)
     return "Acesso negado", 403
 
 @app.route("/adicionar/", methods=["POST", "GET"])
@@ -178,6 +181,19 @@ def adicionar():
     if validar_perm():
             return render_template("adicionar.html", lanches=lanches, bebidas=bebidas)
     return "Você não tem permissão.", 403
+
+@app.route("/editar/<id>", methods=["GET", "POST"])
+def editar(id):
+    if request.method == "POST":
+        nome = request.form.get("nome")
+        descricao = request.form.get("descricao")
+        preco = request.form.get("preco")
+        categoria = request.form.get("categoria")
+        url_imagem = request.form.get("url")
+        database.editar_produto(id, nome, descricao, preco, categoria, url_imagem)
+        return redirect(url_for("gerenciar"))
+    produto = database.get_produto(id)
+    return render_template("editar_produto.html", produto=produto)
 
 @app.route("/consulta/<id>")
 def consulta(id):
@@ -205,7 +221,7 @@ def cozinha():
         ultimos_pedidos = {}
         lanches = pedido.ids_lanches.split(",")
         for id_lanche in lanches:
-            lanche = database.get_lanche(id_lanche)
+            lanche = database.get_produto(id_lanche)
             nome_lanches.append(lanche.nome)
         
         ultimos_pedidos["mesa"] = pedido.mesa

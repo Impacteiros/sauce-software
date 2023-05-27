@@ -116,10 +116,23 @@ def pesquisa_cliente(nome):
 def get_cliente(id):
       engine.connect()
       query = session.query(Cliente).get(id)
+      session.close()
       return query
 
-def get_lanche(id):
+def get_produto(id):
+      engine.connect()
+      session.close()
       return session.query(Produto).get(id)
+
+def editar_produto(id, nome, descricao, preco, categoria, url_imagem):
+      engine.connect()
+      query = session.query(Produto).get(id)
+      query.nome = nome
+      query.descricao = descricao
+      query.preco = preco
+      query.categoria = categoria
+      query.url_imagem = url_imagem
+      session.commit()
 
 lista_lanches = session.query(Produto).filter(and_(Produto.ativo == True, Produto.categoria == 'hamburguer'))
 lista_bebidas = session.query(Produto).filter(and_(Produto.ativo == True, Produto.categoria == 'bebida'))

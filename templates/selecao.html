@@ -17,21 +17,27 @@
             var semCadastro = document.getElementById("semcadastro");
             var cadastrado = document.getElementById("cadastrado");
             var cadastro = document.getElementById("cadastro");
+            var resultado = document.getElementById('resultados')
+
+            console.log(resultado)
 
             if (selectedValue === "semcadastro") {
                 semCadastro.style.display = "flex";
                 cadastro.style.display = "none";
                 cadastrado.style.display = "none"
+                resultado.style.display = "none"
 
             } else if (selectedValue === "cadastrar") {
                 cadastro.style.display = "block";
                 semCadastro.style.display = "none";
                 cadastrado.style.display = "none"
+                resultado.style.display = "none"
 
             } else if (selectedValue === "cadastrado") {
                 cadastrado.style.display = "flex";
                 semCadastro.style.display = "none";
                 cadastro.style.display = "none"
+                resultado.style.display = "none"
 
             }
         }
@@ -60,7 +66,7 @@
     </div>
     {% endif %}
     {% endwith %}
-    <h1>Sauce Burguer</h1>
+
     <div class="container">
         <div class="cliente">
             <h1>Cadastro:</h1>
@@ -84,7 +90,7 @@
         <div id="semcadastro">
             <form method="POST">
             <input type="number" placeholder="MESA" id="mesa" name="mesa" required />
-            <center><input type="submit" name="sem_cadastro" value="Enviar"></center>
+            <input type="submit" name="sem_cadastro" value="Enviar">
             </form>
         </div>
 
@@ -107,8 +113,8 @@
         </div>
 
         <div id="cadastrado">
+            <label for="nome">Digite o nome do cliente:</label>
             <form method="POST" action="/selecao/">
-                <label for="nome">Digite o nome do cliente:</label><br>
                 <input type="text" name="pesquisa" required>
                 <input type="submit" value="Enviar">
             </form>
@@ -117,19 +123,19 @@
     </div>
     {% if clientes %}
     <h3>Selecione o cliente:</h3><br>
-    <div class="resultados">
+    <div class="resultados" id="resultados">
         <ul>
                 <form method="POST">
                 
                     {% for x in clientes %}
-                <li class="nomes"><input type="radio" name="id_cliente" value="{{x.id}}"> {{x.nome}}</li>
+                <li class="nomes"><input type="radio" name="id_cliente" value="{{x.id}}"> {{x.nome}}</li><br>
                     {% endfor %}
                     <input type="number" placeholder="MESA" id="mesa" name="mesa" required />
                     <input type="submit">
             </ul>
         </form>
         {% elif clientes == False %}
-        Não encontrado
+        <div><h1>Não encontrado</h1></div>
     </div>
     {%endif%}
 </body>

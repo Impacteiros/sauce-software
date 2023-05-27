@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <link rel="stylesheet" href="{{url_for('static', filename="css/style.css")}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,24 +10,15 @@
 
 </head>
 <body>
+    {% include 'header.html' %}
 
-    <div class="overlay">
-        <label for="toggle"></label>
-    </div>
-    
-    <input type="checkbox" id="toggle" name="toggle">
-    <div class="verticalNav">
-        {% if cargo == "administrador" %}<a href="/gerenciar">Gerenciar produtos</a>
-        <a href="/adicionar">Adicionar novo produto</a>{% endif %}
-        <a href="/carrinho">Carrinho</a>
-        <a href="/deslogar">Deslogar</a>
-    </div>
-
-    <div class="container">
-        <h3>Olá {{ nome }}</h3>
+<div class="container">
+    <div class="topo">
         {%if cliente%}Você está atendendo: {{cliente.nome}}{%endif%}
         <h3>Você está atendendo a mesa: {{mesa}}</h3>
-    <h1>Hamburgueres</h1>
+            <p class="mesa_sair"><a href="/selecao">Mudar a mesa</a></p>
+            <h1>🍔 Hamburgueres 🍔</h1>
+    </div>
     {% for lanche in lanches %}
     <div class="infos">
         <div class="texto">
@@ -34,15 +26,15 @@
     <li class="nome_lanche">{{lanche.nome}}</li>
     <li class="descricao">{{lanche.descricao[:110]}}</li>
     <li class="preco">R$ {{ "%.2f" % lanche.preco }}</li>
-        </ul>
-        <a href="/carrinho/adicionar/{{lanche.id}}">Adicionar ao carrinho</a>
+        </ul><br>
+        <p class="links"><a href="/carrinho/adicionar/{{lanche.id}}"><i class="fas fa-shopping-cart"></i><i class="fas fa-plus"></i> Adicionar ao carrinho</a></p>
         </div>
         <div class="imagem">
     <img src="{{lanche.url_imagem}}" />
         </div>
     </div>
     {% endfor %}
-    <h1>Bebidas</h1>
+    <h1 style="width: 100%;">🥤 Bebidas 🥤</h1>
     {% for bebida in bebidas %}
     <div class="infos">
         <div class="texto">
@@ -51,7 +43,7 @@
     <li class="descricao">{{bebida.descricao[:110]}}</li>
     <li class="preco">R$ {{ "%.2f" % bebida.preco }}</li>
         </ul>
-        <a href="/carrinho/adicionar/{{bebida.id}}">Adicionar ao carrinho</a>
+        <p class="links"><a href="/carrinho/adicionar/{{bebida.id}}"><i class="fas fa-shopping-cart"></i><i class="fas fa-plus"></i> Adicionar ao carrinho</a></p>
         </div>
         <div class="imagem">
     <img src="{{bebida.url_imagem}}" />
