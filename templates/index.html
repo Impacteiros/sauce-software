@@ -53,10 +53,11 @@
                 <div class="modal-content">
                     <span class="close">&times;</span>
                     <h3>Selecione os Adicionais para {{ lanche.nome }}</h3>
+                    <p style="text-align: center;">Deixe -1 para remover</p>
                     <form method="POST" action="/carrinho/adicionar/{{lanche.id}}">
                     <ul>
                         {% for adicional in adicionais %}
-                        <li><input type="checkbox"> {{ adicional.nome }} </li>
+                        <li><input type="number" name="{{adicional.nome}}" value="0"> {{ adicional.nome }} </li>
                         {% endfor %}
                     </ul>
                     <button type="submit">Enviar ao carrinho</button>

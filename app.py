@@ -14,7 +14,7 @@ lanches = database.lista_lanches
 bebidas = database.lista_bebidas
 adicionais = database.lista_adicionais
 
-lista_carrinho = []
+lista_carrinho = {}
 pedidos_cozinha = {}
 
 
@@ -134,15 +134,20 @@ def carrinho():
 
 @app.route("/carrinho/adicionar/<id>", methods=["GET", "POST"])
 def adicinar_carrinho(id):
+    adicionais = {}
+
+    for nome, qtd in request.form.items():
+        adicionais[nome] = qtd
+
     produto = database.get_produto(id)
     nome = produto.nome
     flash(f"Você adicionou {nome} no carrinho", "adicionado")
-    lista_carrinho.append(int(id))
+    lista_carrinho[id] = adicionais
     return redirect("/")
 
 @app.route("/carrinho/remover/<id>")
 def remover_carrinho(id):
-    lista_carrinho.remove(int(id))
+    lista_carrinho.pop(id)
     return redirect("/carrinho")
 
 @app.route("/carrinho/enviar/", methods=["POST", "GET"])
@@ -153,9 +158,10 @@ def enviar_cozinha():
 
     for id in lista_carrinho:
         query_result = database.session.query(database.Produto).get(id)
-        produtos_enviar.append({"nome": query_result.nome, "id": id, "preco": query_result.preco, "id_cliente": session['id_cliente']})
+        produtos_enviar.append({"nome": query_result.nome, "id": id, "preco": query_result.preco, "id_cliente": session['id_cliente'], "adicionais": lista_carrinho[id]})
     
     pedidos_cozinha[mesa_numero] = produtos_enviar
+
     lista_carrinho.clear()
     session.pop('mesa')
     session.pop('id_cliente')
@@ -170,8 +176,7 @@ def deslogar():
 
 @app.route("/debug/")
 def debug():
-    produto = database.get_produto(1)
-    return produto.disponivel
+    return pedidos_cozinha
 
 @app.route("/gerenciar/")
 def gerenciar():

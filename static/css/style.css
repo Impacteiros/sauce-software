@@ -479,8 +479,19 @@ label {
   max-width: 400px; /* Ajuste o valor conforme necessário */
 }
 
-.modal-content input[type="checkbox"] {
-  transform: scale(2);
+.modal-content input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+  appearance: textfield; /* Remove os botões de incremento e decremento em navegadores que suportam */
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  font-weight: bold;
+  width: 50px;
+  height: 2em;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 0;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 .modal li {
