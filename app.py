@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_socketio import SocketIO
+from backup import backup_file
 import database
 import eventlet
 
@@ -11,6 +12,8 @@ socketio = SocketIO(app)
 
 lanches = database.lista_lanches
 bebidas = database.lista_bebidas
+adicionais = database.lista_adicionais
+
 lista_carrinho = []
 pedidos_cozinha = {}
 
@@ -52,6 +55,11 @@ def pesquisa_cliente():
         return redirect(url_for("selecao"))
     return "Não encontrou"
     
+@app.route("/backup")
+def backup():
+    if validar_perm():
+        response = backup_file()
+        return "Backup feito com sucesso"
 
 @app.route("/cadastro/cliente", methods=["POST"])
 def cadastro_cliente():
@@ -80,9 +88,9 @@ def home():
         cliente = database.get_cliente(session['id_cliente'])
         print(cliente)
         return render_template("index.html", lanches=lanches, bebidas=bebidas,
-                          nome=nome, cargo=cargo, cliente=cliente, mesa=mesa)
+                          nome=nome, cargo=cargo, cliente=cliente, mesa=mesa, adicionais=adicionais)
     return render_template("index.html", lanches=lanches, bebidas=bebidas,
-                           nome=nome, cargo=cargo, mesa=mesa)
+                           nome=nome, cargo=cargo, mesa=mesa, adicionais=adicionais)
 
 @app.route("/login/", methods=["POST", "GET"])
 def login():
@@ -124,13 +132,11 @@ def carrinho():
     return render_template("carrinho.html", cargo=cargo, carrinho=carrinho_render, 
                            lanches=lanches, bebidas=bebidas, preco_total=preco_total)
 
-@app.route("/deslogar/")
-def deslogar():
-    session.clear()
-    return redirect("/login/")
-
-@app.route("/carrinho/adicionar/<id>")
+@app.route("/carrinho/adicionar/<id>", methods=["GET", "POST"])
 def adicinar_carrinho(id):
+    produto = database.get_produto(id)
+    nome = produto.nome
+    flash(f"Você adicionou {nome} no carrinho", "adicionado")
     lista_carrinho.append(int(id))
     return redirect("/")
 
@@ -156,9 +162,16 @@ def enviar_cozinha():
     flash("Pedido enviado para produção.", "sucesso")
     return redirect(url_for("selecao"))
 
+@app.route("/deslogar/")
+def deslogar():
+    session.clear()
+    return redirect("/login/")
+
+
 @app.route("/debug/")
 def debug():
-    return render_template("debug.html")
+    produto = database.get_produto(1)
+    return produto.disponivel
 
 @app.route("/gerenciar/")
 def gerenciar():
@@ -169,15 +182,23 @@ def gerenciar():
 
 @app.route("/adicionar/", methods=["POST", "GET"])
 def adicionar():
-    nome = request.form.get("nome")
-    descricao = request.form.get("descricao")
-    preco = request.form.get("preco")
-    categoria = request.form.get("categoria")
-    url = request.form.get("url")
-    
-    if nome and preco and url:
-        database.adicionar_produto(nome, descricao, preco, categoria, url)
+    tipo = request.form.get("tipo")
+    if tipo == "produto":
+        nome = request.form.get("nome")
+        descricao = request.form.get("descricao")
+        preco = request.form.get("preco")
+        categoria = request.form.get("categoria")
+        url = request.form.get("url")
+        if nome and preco and url:
+            database.adicionar_produto(nome, descricao, preco, categoria, url)
+            return redirect("/")
+    if tipo == "adicional":
+        nome = request.form.get("nome")
+        preco = request.form.get("preco")
+        url_imagem = request.form.get("url_imagem") 
+        database.adicionar_adicional(nome, preco, url_imagem)
         return redirect("/")
+
     if validar_perm():
             return render_template("adicionar.html", lanches=lanches, bebidas=bebidas)
     return "Você não tem permissão.", 403
@@ -189,8 +210,14 @@ def editar(id):
         descricao = request.form.get("descricao")
         preco = request.form.get("preco")
         categoria = request.form.get("categoria")
+        disponivel = request.form.get("disponivel")
+        if disponivel == "True":
+            disponivel = True
+        else:
+            disponivel = False
+
         url_imagem = request.form.get("url")
-        database.editar_produto(id, nome, descricao, preco, categoria, url_imagem)
+        database.editar_produto(id, nome, descricao, preco, categoria, url_imagem, disponivel)
         return redirect(url_for("gerenciar"))
     produto = database.get_produto(id)
     return render_template("editar_produto.html", produto=produto)
@@ -231,9 +258,11 @@ def cozinha():
 
     return render_template("cozinha.html", pedidos=pedidos_cozinha, atendente=session['usuario'][0], finalizados=lista_pedidos)
 
+@socketio.on('pedido')
 @app.route("/cozinha/finalizar/<id>", methods=["POST", "GET"])
 def finalizar_pedido(id):
 
+    socketio.emit('pedido', id)
     id_cliente = pedidos_cozinha[id][0]['id_cliente']
 
     id_lanches = []

@@ -1,5 +1,8 @@
 body {
-    background-color: #d1d1d1;
+    background-color: #e9e9e9;
+    margin: 0;
+    color: #111;
+    font-family: 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 .container {
@@ -50,7 +53,7 @@ h3 {
 }
 
 .container div {
-  margin: 10px;
+  margin: 0.3em;
 }
 
 .container ul {
@@ -68,6 +71,7 @@ h3 {
     font-weight: bold;
     font-size: 3ex;
     max-width: 170px;
+    white-space: nowrap;
 }
 
 .preco {
@@ -76,12 +80,16 @@ h3 {
 }
 
 .descricao {
-    font-size: small;
+    font-size: 0.6em;
+}
+
+.fa-plus {
+  color:#288d00;
 }
 
 .infos {
     display: flex;
-    border-radius: 10px;
+    border-radius: 0.3em;
     border-style: solid;
     border-color: rgb(0, 0, 0);
 }
@@ -98,7 +106,7 @@ h3 {
 
 .links {
   text-align: center;
-  margin: 0;
+  margin: 1em 0 0 0;
 }
 
 @media only screen and (min-width: 1024px) {
@@ -126,19 +134,12 @@ h3 {
     padding: 5px;
 }
 
-body {
-  margin: 0;
-  color: #111;
-  font-family: 'Helvetica Neue', Helvetica, sans-serif;
-}
-
-
 .overlay {
   position: absolute;
   z-index: 1;
   width: 100%;
   height: 80px;
-  background-color: #5e5e5e;
+  background-color: #ffd005;
 }
 
 .overlay > label {
@@ -170,7 +171,7 @@ body {
   padding: 10px;
   font-size: 2em;
   box-sizing: border-box;
-  background-color: #969696;
+  background-color: #caa605;
   transition: top 600ms cubic-bezier(0.17, 0.04, 0.03, 0.94);
 }
 
@@ -245,6 +246,10 @@ header {
   text-align: center;
 }
 
+.mesa_sair a {
+  color: inherit;
+}
+
 .mesa input[type='number'] {
   height: 5vh;
   background-color: #ccc;
@@ -279,11 +284,14 @@ header {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  width: 100%;
+
 }
 .ativos .infos {
   background-color: #d3d3d3;
   display: flex;
   flex-direction: column;
+  width: 43%;
 }
 
 h1 {
@@ -445,6 +453,83 @@ label {
 }
 
 .edicao {
+  display: none; 
+}
+
+.modal {
   display: none;
-  
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 400px; /* Ajuste o valor conforme necessário */
+}
+
+.modal-content input[type="checkbox"] {
+  transform: scale(2);
+}
+
+.modal li {
+  margin: 10px;
+  font-size: 1.5em;
+}
+
+.modal form {
+  text-align: center;
+}
+
+.modal button[type="submit"] {
+  font-size: 1vh;
+  padding: 1em;
+  font-weight: bold;
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.openButton {
+  font-weight: bold;
+  background: none;
+  border: none;
+  box-shadow: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  /* Ajuste a aparência visual do texto */
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: none;
+  padding-bottom: 0.5em;
 }

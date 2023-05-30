@@ -30,6 +30,7 @@ class Produto(Base):
       url_imagem = Column(String)
       categoria = Column(String(20))
       ativo = Column(Boolean)
+      disponivel = Column(Boolean)
 
 class Pedido(Base):
       __tablename__ = "pedido"
@@ -50,6 +51,16 @@ class Cliente(Base):
       endereco = Column(String(200))
       celular = Column(String(15))
       email = Column(String(50))
+
+class Adicional(Base):
+      __tablename__ = "adicional"
+
+      id = Column(Integer, primary_key=True)
+      nome = Column(String(50))
+      preco = Column(Numeric(precision=5, scale=2))
+      url_imagem = Column(String)
+      disponivel = Column(Boolean)
+      ativo = Column(Boolean)
 
 # Criando a tabela no banco de dados
 Base.metadata.create_all(engine)
@@ -81,10 +92,18 @@ def validar_login(usuario, senha):
 
 def adicionar_produto(nome, descricao, preco, categoria, url_imagem):
       engine.connect()
-      produto = Produto(nome=nome, descricao=descricao, preco=preco, categoria=categoria, url_imagem=url_imagem, ativo=True)
+      produto = Produto(nome=nome, descricao=descricao, preco=preco, categoria=categoria, url_imagem=url_imagem, ativo=True, disponivel=True)
       session.add(produto)
       session.commit()
       session.close()
+
+def adicionar_adicional(nome, preco, url_imagem):
+      engine.connect()
+      produto = Adicional(nome=nome, preco=preco, url_imagem=url_imagem, ativo=True, disponivel=True)
+      session.add(produto)
+      session.commit()
+      session.close()
+      
       
 def remover_produto(id):
         engine.connect()
@@ -124,7 +143,7 @@ def get_produto(id):
       session.close()
       return session.query(Produto).get(id)
 
-def editar_produto(id, nome, descricao, preco, categoria, url_imagem):
+def editar_produto(id, nome, descricao, preco, categoria, url_imagem, disponivel):
       engine.connect()
       query = session.query(Produto).get(id)
       query.nome = nome
@@ -132,7 +151,11 @@ def editar_produto(id, nome, descricao, preco, categoria, url_imagem):
       query.preco = preco
       query.categoria = categoria
       query.url_imagem = url_imagem
+      query.disponivel = disponivel
+
       session.commit()
+      session.close()
 
 lista_lanches = session.query(Produto).filter(and_(Produto.ativo == True, Produto.categoria == 'hamburguer'))
 lista_bebidas = session.query(Produto).filter(and_(Produto.ativo == True, Produto.categoria == 'bebida'))
+lista_adicionais = session.query(Adicional).filter(Adicional.ativo == True)

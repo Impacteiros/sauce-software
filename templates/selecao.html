@@ -11,6 +11,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sauce Burguer</title>
 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.0/socket.io.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+    
+        socket.on('connect', function() {
+          socket.emit('my_event', {data: 'Conectado'});
+        });
+    
+        socket.on('pedido', function(data) {
+          console.log("NOVO PEDIDO");
+          alert(`PEDIDO PRONTO, MESA: ${data}`)
+        });
+      </script>
+
+
     <script>
         function mostrarElemento(selectElement) {
             var selectedValue = selectElement.value;
@@ -43,7 +58,7 @@
         }
 
         function fecharDiv() {
-            var overlay = document.querySelector('.overlay');
+            var overlay = document.querySelector('.overlayAviso');
             overlay.style.display = 'none';
         }
     
@@ -54,7 +69,7 @@
 <body>
     {% with sucesso = get_flashed_messages() %}
     {% if sucesso %} 
-    <div class="overlay">
+    <div class="overlayAviso">
         <div class="content">
             <!-- Botão de fechar -->
             <span class="close-button" onclick="fecharDiv()">&times;</span>
@@ -66,8 +81,8 @@
     </div>
     {% endif %}
     {% endwith %}
-
     <div class="container">
+        <img src="{{url_for('static', filename="images/logo_topo.png")}}" width="200" height="100"/> 
         <div class="cliente">
             <h1>Cadastro:</h1>
             <ul>
