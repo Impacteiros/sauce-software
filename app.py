@@ -13,6 +13,8 @@ socketio = SocketIO(app)
 lanches = database.lista_lanches
 bebidas = database.lista_bebidas
 adicionais = database.lista_adicionais
+cupons = database.lista_cupom
+cupom_nome = None
 
 lista_carrinho = {}
 pedidos_cozinha = {}
@@ -108,36 +110,62 @@ def login():
 
 @app.route("/cadastro/funcionario/", methods=["POST", "GET"])
 def cadastro():
-    nome = request.form.get("nome")
-    usuario = request.form.get("usuario")
-    senha = request.form.get("senha")
-    cargo = request.form.get("cargo")
-    if nome and usuario and senha and cargo:
-        database.cadastrar_funcionario(nome, usuario, senha, cargo)
-        return "Cadastrado com sucesso"
-    else:
-        return render_template("cadastro_funcionario.html")
+    if validar_perm():
+        nome = request.form.get("nome")
+        usuario = request.form.get("usuario")
+        senha = request.form.get("senha")
+        cargo = request.form.get("cargo")
+        if nome and usuario and senha and cargo:
+            cadastrado = database.validar_cadastro(usuario)
+            if cadastrado:
+                return "Usuário em uso"
+            database.cadastrar_funcionario(nome, usuario, senha, cargo)
+            return "Cadastrado com sucesso"
+        else:
+            return render_template("cadastro_funcionario.html")
+    return "Acesso negado"
+
+@app.route("/cadastro/cupom", methods=["GET", "POST"])
+def cadastro_cupom():
+
+    if request.method == "POST":
+        cupom = request.form.get("cupom")
+        valor = request.form.get("valor")
+        database.cadastrar_cupom(cupom, valor)
+        return redirect(url_for("gerenciar"))
+    return render_template("cadastro_cupom.html")
 
 
 @app.route("/carrinho/", methods=["POST", "GET"])
 def carrinho():
     cargo = session['usuario'][1]
     carrinho_render = []
+    cupom = 0
     preco_total = 0
     for id in lista_carrinho:
         produto = database.session.query(database.Produto).get(id)
         preco_total += produto.preco
         carrinho_render.append(produto)
+
+    if request.method == "POST":
+        cupom = request.form.get("cupom")
+        cupom_info = database.validar_cupom(cupom)
+        if cupom_info:
+            session['cupom'] = cupom_info.cupom
+            cupom = float(cupom_info.valor)
+
+        return render_template("carrinho.html", cargo=cargo, carrinho=carrinho_render, 
+                            lanches=lanches, bebidas=bebidas, preco_total=float(preco_total), cupom=cupom)
     
     return render_template("carrinho.html", cargo=cargo, carrinho=carrinho_render, 
-                           lanches=lanches, bebidas=bebidas, preco_total=preco_total)
+                           lanches=lanches, bebidas=bebidas, preco_total=float(preco_total), cupom=cupom)
 
 @app.route("/carrinho/adicionar/<id>", methods=["GET", "POST"])
 def adicinar_carrinho(id):
     adicionais = {}
 
     for nome, qtd in request.form.items():
-        adicionais[nome] = qtd
+        adicionais[nome] = int(qtd)
 
     produto = database.get_produto(id)
     nome = produto.nome
@@ -156,15 +184,22 @@ def enviar_cozinha():
     produtos_enviar = []
     atualizar_cozinha()
 
+    if "cupom" in session:
+        cupom = session["cupom"]
+    else:
+        cupom = "Nenhum"
+
     for id in lista_carrinho:
         query_result = database.session.query(database.Produto).get(id)
-        produtos_enviar.append({"nome": query_result.nome, "id": id, "preco": query_result.preco, "id_cliente": session['id_cliente'], "adicionais": lista_carrinho[id]})
+        produtos_enviar.append({"nome": query_result.nome, "id": id, "preco": query_result.preco, "id_cliente": session['id_cliente'], "adicionais": lista_carrinho[id], "cupom": cupom})
     
     pedidos_cozinha[mesa_numero] = produtos_enviar
 
     lista_carrinho.clear()
     session.pop('mesa')
     session.pop('id_cliente')
+    if "cupom" in session:
+        session.pop("cupom")
     flash("Pedido enviado para produção.", "sucesso")
     return redirect(url_for("selecao"))
 
@@ -180,9 +215,24 @@ def debug():
 
 @app.route("/gerenciar/")
 def gerenciar():
+    cupons = database.lista_cupom
     cargo = session['usuario'][1]
     if validar_perm():
-            return render_template("gerenciar.html", cargo=cargo, lanches=lanches, bebidas=bebidas)
+            return render_template("gerenciar.html", cargo=cargo, lanches=lanches, bebidas=bebidas, cupons=cupons)
+    return "Acesso negado", 403
+
+@app.route("/gerenciar/cupom/remover/<id>")
+def remover_cupom(id):
+    database.deletar_cupom(id)
+    return redirect(url_for("gerenciar"))
+
+
+@app.route("/gerenciar/funcionario")
+def gerenciar_funcionarios():
+    funcionarios = database.lista_funcionarios
+    cargo = session['usuario'][1]
+    if validar_perm():
+            return render_template("gerenciar_funcionarios.html", cargo=cargo, funcionarios=funcionarios)
     return "Acesso negado", 403
 
 @app.route("/adicionar/", methods=["POST", "GET"])
@@ -241,9 +291,17 @@ def remover(id):
         return redirect(request.referrer)
     return "Acesso negado", 403
 
+@app.route("/funcionario/remover/<id>")
+def remover_funcionario(id):
+    if validar_perm():
+        database.remover_funcionario(id)
+        return redirect(request.referrer)
+    return "Acesso negado", 403
+
 @app.route("/cozinha/")
 def cozinha():
-
+    if not validar_perm():
+        return "Acesso negado"
     query_resp = database.session.query(database.Pedido).order_by(database.Pedido.id.desc()).limit(5).all()
     ultimos_pedidos = {}
     lista_pedidos = []
@@ -269,7 +327,7 @@ def finalizar_pedido(id):
 
     socketio.emit('pedido', id)
     id_cliente = pedidos_cozinha[id][0]['id_cliente']
-
+    cupom = pedidos_cozinha[id][0]['cupom']
     id_lanches = []
     for produto in pedidos_cozinha[id]:
         id_lanches.append(str(produto['id']))
@@ -278,9 +336,8 @@ def finalizar_pedido(id):
     for produto in pedidos_cozinha[id]:
         preco_total += produto['preco']
     pedidos_cozinha.pop(id)
-
     ids = ",".join(id_lanches)
-    database.salvar_pedido(ids, id_cliente, session['usuario'][0], preco_total, id)
+    database.salvar_pedido(ids, id_cliente, session['usuario'][0], preco_total, id, cupom)
     return redirect(url_for("cozinha"))
 
 if __name__ == "__main__":

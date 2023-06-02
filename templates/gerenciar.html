@@ -46,6 +46,17 @@
         </div>
     </div>
     {% endfor %}
+    <h1 style="width: 100%">Cupons</h1>
+    <div class="cupons">
+        <ul>
+        {% for cupom in cupons %}
+
+        <li>{{ cupom.cupom }} <a href="/gerenciar/cupom/remover/{{cupom.id}}">X</a></li>
+
+        {% endfor %}
+        </ul>
+    <h3><a href="/cadastro/cupom">Cadastrar CUPOM</a></h3>
+    </div>
 
 </div>
 

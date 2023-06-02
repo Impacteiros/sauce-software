@@ -235,6 +235,17 @@ header {
   text-align: center;
 }
 
+.cupons {
+  font-size: 1.5em;
+}
+
+.cupons li {
+  border-style: solid;
+  padding: 0.3em;
+  width: 10em;
+  text-align: center;
+}
+
 .mesa {
   text-align: center;
   width: 100%;
@@ -250,14 +261,15 @@ header {
   color: inherit;
 }
 
+
 .mesa input[type='number'] {
   height: 5vh;
   background-color: #ccc;
   font-size: 2vh;
   display: block;
-  width: 50%;
+  width: 20%;
   padding: 5px;
-  border: 1px solid #ebe718;
+  border: 1px solid #000000;
   border-radius: 5px;
   margin-bottom: 20px;
   text-align: center;

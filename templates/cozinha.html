@@ -29,12 +29,14 @@
         <div class="infos">
             <div class="texto">
         <h3>Mesa: {{mesa}}</h3><br>
+        <ul>
                 {%for produto in pedidos[mesa]%}
 
-                {{ produto.nome }}: {{produto.adicionais}} <br>
+                <li style="font-weight: bold; font-size: 1.2em;">{{ produto.nome }}</li>
+                {%for adicional, quantidade in produto.adicionais.items()%}{% if quantidade > 0%}<li>{{adicional}}: {{quantidade}} {%endif%}{% endfor %}</li>
 
                 {%endfor%}
-
+        </ul>
         </div>
         <div class="atendente">
           <form method="post" action="/cozinha/finalizar/{{mesa}}">

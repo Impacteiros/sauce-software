@@ -19,6 +19,7 @@ class Funcionario(Base):
       usuario = Column(String(20))
       senha = Column(String(20))
       cargo = Column(String(20))
+      ativo = Column(Boolean)
 
 class Produto(Base):
       __tablename__ = "produto"
@@ -41,6 +42,7 @@ class Pedido(Base):
       total = Column(Numeric(precision=5, scale=2))
       data = Column(DateTime)
       atendente = Column(String(20))
+      cupom = Column(String(22))
       mesa = Column(Integer)
 
 class Cliente(Base):
@@ -62,17 +64,23 @@ class Adicional(Base):
       disponivel = Column(Boolean)
       ativo = Column(Boolean)
 
-# Criando a tabela no banco de dados
+class Cupom(Base):
+      __tablename__ = "cupom"
+
+      id = Column(Integer, primary_key=True)
+      cupom = Column(String(20))
+      valor = Column(Numeric(precision=5, scale=2))
+      ativo = Column(Boolean)
+
 Base.metadata.create_all(engine)
 
-# Criando uma sessão para interagir com o banco de dados
 Session = sessionmaker(bind=engine)
 session = Session()
 
 def cadastrar_funcionario(nome, usuario, senha, cargo):
       engine.connect()
       senha_hash = hashlib.sha256(senha.encode()).hexdigest()
-      funcionario = Funcionario(nome=nome, usuario=usuario, senha=senha_hash, cargo=cargo)
+      funcionario = Funcionario(nome=nome, usuario=usuario, senha=senha_hash, cargo=cargo, ativo=True)
       session.add(funcionario)
       session.commit()
       session.close()
@@ -89,6 +97,30 @@ def validar_login(usuario, senha):
                   return [False, "Usuário e/ou senha incorreto(s)."]
       return [False, "Usuário e/ou senha incorreto(s)."]
 
+def validar_cupom(cupom_desejado):
+      engine.connect()
+      query = session.query(Cupom).filter(Cupom.cupom == cupom_desejado).first()
+      return query
+
+def cadastrar_cupom(cupom, valor):
+      engine.connect()
+      cupom = Cupom(cupom=cupom, valor=valor, ativo=True)
+      session.add(cupom)
+      session.commit()
+      session.close()
+
+def deletar_cupom(id):
+      engine.connect()
+      cupom = session.query(Cupom).get(id)
+      cupom.ativo = False
+      session.commit()
+      session.close()
+
+def validar_cadastro(usuario):
+      query = session.query(Funcionario).filter(Funcionario.usuario == usuario).first()
+      if query:
+            return True
+      return False
 
 def adicionar_produto(nome, descricao, preco, categoria, url_imagem):
       engine.connect()
@@ -112,9 +144,16 @@ def remover_produto(id):
         session.commit()
         session.close()
 
-def salvar_pedido(data, id_cliente, usuario, preco, mesa):
+def remover_funcionario(id):
+        engine.connect()
+        resultado = session.query(Funcionario).get(id)
+        resultado.ativo = False
+        session.commit()
+        session.close()
+
+def salvar_pedido(data, id_cliente, usuario, preco, mesa, cupom):
       engine.connect()
-      pedido = Pedido(ids_lanches=data, id_cliente=id_cliente, total=preco, atendente=usuario, data=datetime.now(), mesa=mesa)
+      pedido = Pedido(ids_lanches=data, id_cliente=id_cliente, total=preco, atendente=usuario, data=datetime.now(), mesa=mesa, cupom=cupom)
       session.add(pedido)
       session.commit()
       session.close()
@@ -159,3 +198,5 @@ def editar_produto(id, nome, descricao, preco, categoria, url_imagem, disponivel
 lista_lanches = session.query(Produto).filter(and_(Produto.ativo == True, Produto.categoria == 'hamburguer'))
 lista_bebidas = session.query(Produto).filter(and_(Produto.ativo == True, Produto.categoria == 'bebida'))
 lista_adicionais = session.query(Adicional).filter(Adicional.ativo == True)
+lista_funcionarios = session.query(Funcionario).filter(Funcionario.ativo == True)
+lista_cupom = session.query(Cupom).filter(Cupom.ativo == True)
